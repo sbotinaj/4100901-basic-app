@@ -60,7 +60,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(GPIO_Pin);
-  if (GPIO_Pin==GPIO_PIN_13){// PC13 (PB1)
+  if (GPIO_Pin==GPIO_PIN_13){// Blink izquierda
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
   } else if (GPIO_Pin==S1_Pin){
 	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,1);
@@ -68,18 +68,27 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,0);
 	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
 	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,1);
-  }else if (GPIO_Pin==S2_Pin){
+	  HAL_UART_Transmit(&huart2, "PB1\r\n", 5, 10);
+  }else if (GPIO_Pin==S2_Pin){//Estacionarias
+	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,1);
+	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,1);
+	  HAL_GPIO_WritePin(K1_GPIO_Port,K1_Pin,1);
+	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
+	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,0);
+	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,0);
+	  HAL_GPIO_WritePin(K1_GPIO_Port,K1_Pin,0);
+	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
+	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,1);
+	  HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,1);
+	  HAL_GPIO_WritePin(K1_GPIO_Port,K1_Pin,1);
+	  HAL_UART_Transmit(&huart2, "PB2\r\n", 5, 10);
+  }else if (GPIO_Pin==S3_Pin){//Blink derecha
 	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,1);
 	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
 	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,0);
 	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
 	  HAL_GPIO_WritePin(LD3_GPIO_Port,LD3_Pin,1);
-  }else if (GPIO_Pin==S3_Pin){
-	  HAL_GPIO_WritePin(LD4_GPIO_Port,LD4_Pin,1);
-	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
-	  HAL_GPIO_WritePin(LD4_GPIO_Port,LD4_Pin,0);
-	  for (uint16_t counter =0; counter <0xEFFF; counter++){}
-	  HAL_GPIO_WritePin(LD4_GPIO_Port,LD4_Pin,1);
+	  HAL_UART_Transmit(&huart2, "PB3\r\n", 5, 10);//Mensaje en consola
 }
 //  /* NOTE: This function should not be modified, when the callback is needed,
 //           the HAL_GPIO_EXTI_Callback could be implemented in the user file
@@ -118,7 +127,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Transmit(&huart2, "Hello\r\n", 7, 10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -241,6 +250,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(K1_GPIO_Port, K1_Pin, GPIO_PIN_SET);
+
   /*Configure GPIO pin : PB1_Pin */
   GPIO_InitStruct.Pin = PB1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
@@ -265,6 +277,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(S3_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : K1_Pin */
+  GPIO_InitStruct.Pin = K1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(K1_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
